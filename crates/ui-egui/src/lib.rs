@@ -92,6 +92,10 @@ pub enum Dialog {
     UnsavedChanges,
     /// Delete Project items that compositions use? (`panels::delete_items`).
     DeleteItems,
+    /// Edit ▸ Console Effect… (Ctrl+Space): the search box at the pointer (`panels::console_effect`).
+    ConsoleEffect,
+    /// Console Effect Settings: favorites, shortcuts, blacklist and options.
+    ConsoleEffectSettings,
 }
 
 /// The desktop's light or dark appearance where egui cannot see it (Wayland compositors that send
@@ -341,6 +345,8 @@ pub struct EffectcraftApp {
     pub(crate) template_thumbs: std::collections::HashMap<String, Option<egui::TextureHandle>>,
     /// Home ▸ Templates: the gallery, and the user template files it was listed from.
     pub(crate) template_list: Option<(Vec<String>, Vec<effectcraft_engine::templates::TemplateInfo>)>,
+    /// Window ▸ Console Effect Gallery: the snapshot gallery window.
+    pub console_gallery: panels::console_effect::Gallery,
 }
 
 /// The saved workspaces in the settings store ([`effectcraft_engine::config::ConfigStore`]).
@@ -412,6 +418,7 @@ impl EffectcraftApp {
             window_title: String::new(),
             template_thumbs: Default::default(),
             template_list: None,
+            console_gallery: Default::default(),
         }
         .with_ui_commands()
         .with_saved_workspaces()
@@ -1619,6 +1626,8 @@ impl EffectcraftApp {
             }
             self.command_inbox = Some(rx);
         }
+        // The Console Effect Gallery's keys come before the app's shortcuts while it is under the pointer.
+        panels::console_effect::gallery_keys(self, &ctx);
         menus::handle_shortcuts(self, &ctx);
         if !ctx.input(|i| i.pointer.primary_down()) {
             self.ui.viewer.property_interacting = false;
@@ -1646,6 +1655,7 @@ impl EffectcraftApp {
         prefs_live::dropped_files(self, ui, full);
         panels::precomp::mini_flowchart(self, &ctx);
         panels::home::capture_thumbnail(self);
+        panels::console_effect::gallery_window(self, &ctx);
         panels::dialogs::show(self, &ctx);
         panels::scriptui_view::sync_panels(self);
         panels::scriptui_view::show_windows(self, &ctx);
