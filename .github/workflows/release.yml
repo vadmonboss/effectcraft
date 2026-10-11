@@ -66,7 +66,8 @@ jobs:
   macos:
     name: macOS universal
     needs: version
-    runs-on: macos-15-xlarge  # M2 Pro larger runner; use only in release.yml (actions_macos_xl budget caps spend)
+    # (Fork: the standard macOS runner; the larger one is a paid plan.)
+    runs-on: macos-15
     environment: release
     env:
       EFFECTCRAFT_VERSION: ${{ needs.version.outputs.version }}
